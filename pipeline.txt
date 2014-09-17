@@ -1,0 +1,29 @@
+Bonjour,
+
+mon code est sur
+
+J'ai procédé comme décrit ci-dessous pour faire un premier traitement de ce jeu de données.
+
+- Parsage (./us_census_data/get_col_lab.py) du nom des colonnes dans le fichier de métadonnées simplifié (./us_census_data/data_col.txt).
+
+-Script R qui charge les data frames (load_data.R). Il s'agit juste d'éviter 
+de charger les données à chaque fois que l'on ajuste un nouveau modèle.
+
+- Exploration graphique très simple (explore_data.R): J'ai tracé des histogrammes pour les variables continues et des barplot de fréquences pour les variables catégoriques. L'ensemble des graphiques est exporté dans un même fichier pdf de plusieurs pages (./plots/explore_plot.pdf).
+
+- Au vu de ces graphiques, je me rends compte que certaines variables sont redondantes (par exemple, detailed_household_and_family_stat contient les même informations que detailed_household_summary_in_household de manière plus détaillée ce qui semble inutile pour une première analyse) ou décrivent seulement une partie du jeu de données (à la fois peu d'information et sur ce qui semble être du détail à première vu comme par exemple reason_for_unemployment) ou encore difficile à interpréter en l'état (detailed_industry_recode). Je filtre les variables qui me semblent peu informatives basées sur ces critères mais je garde, par ailleurs un jeu de données le plus large possible. J'obtiens la liste suivante : age,  class_of_worker, education, wage_per_hour, marital_stat, major_industry_code, major_occupation_code, race, sex, full_or_part_time_employment_stat, capital_gains, capital_losses, dividends_from_stocks, tax_filer_stat, region_of_previous_residence, detailed_household_summary_in_household, family_members_under_18, country_of_birth_father, country_of_birth_mother , country_of_birth_self, citizenship , own_business_or_self_employed ,veterans_benefits, weeks_worked_in_year.
+
+- J'ai ensuite ajusté une première "random forest" (random_forest.R, attention le script ne marchera que si les données ont été chargées par load_data.R au préalable) en prenant toutes ces variables en compte. L'erreur de classification sur l'ensemble test (0.056) est mauvaise si on la compare à l'erreur qu'on obtiendrait si on prédisait que tout le monde gagne moins que 50000$ (0.062, le modèle ne nous apprend pas grand chose). Mais, cela nous permet d'estimer l'importance des diverses variables via la perte moyenne de précision (Mean decrease accuracy , ./plots/RF1_importance.pdf). On se concentre sur cet indicateur plus directement lié à l'erreur de prédiction. Les variables suivantes ressortent comme étant importantes (age, education, major_industry_code, major_occupation_code, sex , capital_gains, dividends_from_stocks). Le niveau éducatif, le secteur d'activité et l'existence d'autre source de revenu que le salaire sont les prédicteurs les plus importants du revenu. A cette étape de l'analyse, on s'est déjà fait une idée des variables importantes pour prédire le revenu.
+
+
+- J'utilise ce sous-ensemble de variables (age, education,major_industry_code, major_occupation_code,sex , capital_gains, dividends_from_stocks) pour les modèles suivants : 
+
+ #Une deuxième Forêt (random_forest2.R) basée sur ces variables performe un peu mieux (0.04895652).
+
+ #On compare avec une régression logistique (logistique.R) utilisant les variables considérées comme importantes par la première forêt (0.0506706).
+	
+# Un seul arbre de décision (decision_tree.R) performe moins bien (0.052). On retrouve le niveau éducatif et les revenus du capital comme facteur important pour déterminer le niveau de revenu (./plots/decision_tree.pdf ).
+
+-Le meilleur algo est donc la random forest sur un sous-ensemble de variables. Cependant, l'erreur de classification est très importante pour les personnes qui gagnent plus de 50000$ (2 sur 3 mal classées). C'est donc sur ces personnes mal classées que je continuerais l'analyse si je devais résoudre le problème jusqu'au bout. En étudiant ce sous-ensemble on trouvera peut-être une particularité à ces personnes riches et mal classés. On pourrait alors créer une variable pour en rendre compte et réajuster un modèle plus efficace.   
+
+Rq : l'ensemble de l'analyse peut-être lancé via pipeline.R.
