@@ -1,8 +1,0 @@
-f = open("data_col.txt",'r')
-
-cols = f.readlines()
-
-for i in cols:
-
-    i = i.split(':')[0]
-    print i

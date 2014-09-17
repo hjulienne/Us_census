@@ -1,3 +1,0 @@
-col_names <- read.table("col_names.txt")
-data_learn <- read.table("census_income_learn.cvs", sep=",")
-names(data_learn) <- col_names[,1]
