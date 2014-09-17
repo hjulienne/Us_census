@@ -1,7 +1,3 @@
-Bonjour,
-
-mon code est sur
-
 J'ai procédé comme décrit ci-dessous pour faire un premier traitement de ce jeu de données.
 
 - Parsage (./us_census_data/get_col_lab.py) du nom des colonnes dans le fichier de métadonnées simplifié (./us_census_data/data_col.txt).
